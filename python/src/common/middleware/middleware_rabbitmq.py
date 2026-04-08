@@ -33,7 +33,10 @@ class MessageMiddlewareQueueRabbitMQ(MessageMiddlewareQueue):
             raise MessageMiddlewareDisconnectedError("Failed to connect to RabbitMQ server") from e
         
     def close(self):
+        # cierro el canal explícitamente antes de cerrar la conexión, en orden inverso al que fueron abiertos.        
         try:
+            if self.channel and self.channel.is_open:
+                self.channel.close()
             self.connection.close()
         except Exception as e:
             raise MessageMiddlewareCloseError("Failed to close RabbitMQ connection") from e
@@ -88,7 +91,10 @@ class MessageMiddlewareExchangeRabbitMQ(MessageMiddlewareExchange):
                 raise MessageMiddlewareMessageError("Failed while publishing to RabbitMQ exchange") from e    
     
     def close(self):
+    # cierro el canal explícitamente antes de cerrar la conexión, en orden inverso al que fueron abiertos.        
         try:
+            if self.channel and self.channel.is_open:
+                self.channel.close()
             self.connection.close()
         except Exception as e:
             raise MessageMiddlewareCloseError("Failed to close RabbitMQ connection") from e
